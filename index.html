@@ -1,0 +1,402 @@
+UNIVERSIDAD CENTRAL DE VENEZUELA
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Ejercicio de Pares Ordenados - Paso a Paso</title>
+<style>
+  /* Reset and box sizing */
+  * {
+    box-sizing: border-box;
+    margin: 0; padding: 0;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 12px;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    color: #61dafb;
+    font-weight: 700;
+    text-shadow: 0 0 8px #61dafb88;
+    text-align: center;
+  }
+
+  #plane-container {
+    position: relative;
+    width: 350px;
+    height: 350px;
+    border: 2px solid #61dafb;
+    border-radius: 8px;
+    background:
+      linear-gradient(45deg, #222 25%, transparent 25%) -10px 0,
+      linear-gradient(135deg, #222 25%, transparent 25%) -10px 0,
+      linear-gradient(45deg, transparent 75%, #222 75%),
+      linear-gradient(135deg, transparent 75%, #222 75%);
+    background-size: 20px 20px;
+    background-repeat: repeat;
+    touch-action: none;
+    margin-bottom: 16px;
+  }
+
+  svg {
+    user-select:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    -o-user-select:none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .axis-label {
+    font-size: 11px;
+    fill: #61dafbdd;
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+  .point {
+    fill: #ff4081;
+    stroke: white;
+    stroke-width: 1.5px;
+    cursor: pointer;
+    transition: fill 0.3s ease, r 0.3s ease;
+  }
+  .point.inactive {
+    fill: #aa5577;
+    r: 5;
+    filter: none;
+    pointer-events: none;
+    cursor: default;
+  }
+  .point.active {
+    fill: #ff80ab;
+    stroke-width: 2.5px;
+    filter: drop-shadow(0 0 6px #ff80abcc);
+    r: 9;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  #explanation {
+    width: 350px;
+    background: #222222cc;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #ddd;
+    min-height: 90px;
+    text-align: center;
+    box-shadow: 0 0 6px #61dafbcc;
+    user-select:none;
+    margin-bottom: 14px;
+  }
+
+  #controls {
+    width: 350px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  button {
+    background: #61dafb;
+    border: none;
+    border-radius: 6px;
+    color: #121212;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 10px 16px;
+    cursor: pointer;
+    box-shadow: 0 0 8px #61dafbcc;
+    transition: background-color 0.3s ease;
+    user-select:none;
+  }
+  button:disabled {
+    background: #447a8b;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  button:hover:not(:disabled) {
+    background: #4fb1d4;
+  }
+
+  #progress-container {
+    width: 350px;
+    height: 12px;
+    background: #333;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: inset 0 0 5px #222;
+  }
+  #progress-bar {
+    height: 100%;
+    background: #ff80ab;
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 6px;
+  }
+
+  @media (max-width: 400px) {
+    #plane-container,
+    #explanation,
+    #controls,
+    #progress-container {
+      width: 95vw;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>Pares Ordenados y Puntos en el Plano - Paso a Paso</h1>
+<div id="plane-container" aria-label="Plano cartesiano para pares ordenados" role="img" aria-live="polite" tabindex="0">
+  <svg id="plane-svg" width="100%" height="100%" viewBox="0 0 350 350" aria-hidden="true" focusable="false"></svg>
+</div>
+<div id="explanation" aria-live="polite" role="region" aria-atomic="true">
+  <!-- Explanation text will be inserted here -->
+</div>
+<div id="controls" role="group" aria-label="Controles de navegación paso a paso">
+  <button id="prevBtn" aria-label="Paso anterior" disabled>Anterior</button>
+  <button id="nextBtn" aria-label="Siguiente paso">Siguiente</button>
+</div>
+<div id="progress-container" aria-hidden="true">
+  <div id="progress-bar"></div>
+</div>
+
+<script>
+(() => {
+  const svg = document.getElementById('plane-svg');
+  const width = 350;
+  const height = 350;
+  const margin = 40;
+
+  // Logical coordinate range
+  const X_MIN = -3;
+  const X_MAX = 3;
+  const Y_MIN = -3;
+  const Y_MAX = 3;
+
+  // Convert Cartesian coordinate to SVG pixel x
+  function xToPx(x) {
+    return margin + ((x - X_MIN) / (X_MAX - X_MIN)) * (width - 2 * margin);
+  }
+  // Convert Cartesian coordinate to SVG pixel y
+  function yToPx(y) {
+    return height - margin - ((y - Y_MIN) / (Y_MAX - Y_MIN)) * (height - 2 * margin);
+  }
+
+  // Points data array with explanations
+  const points = [
+    {name: '(b,0)', coords: [-1, 0], explanation: 'El punto <strong>(b,0)</strong> se calcula con b = -1, entonces es <em>(-1, 0)</em>.'},
+    {name: '(b,b)', coords: [-1, -1], explanation: 'Dado que <strong>(b,b) = (-1,-1)</strong>, b vale -1.'},
+    {name: '(a,a)', coords: [-2, -2], explanation: 'Dado que <strong>(a,a) = (-2,-2)</strong>, a vale -2.'},
+    {name: '(-a,-b)', coords: [2, 1], explanation: 'Para calcular <strong>(-a,-b)</strong>, usamos que a = -2 y b = -1, resultando en <em>(2, 1)</em>.'},
+    {name: '(a,-a)', coords: [-2, 2], explanation: 'El punto <strong>(a,-a)</strong> es <em>(-2, 2)</em> usando los valores de a y -a.'},
+    {name: '(-b,-b)', coords: [1, 1], explanation: 'Finalmente, <strong>(-b,-b)</strong> es <em>(1, 1)</em>.'}
+  ];
+
+  // Draw axes with ticks and labels
+  function drawAxes() {
+    const NS = "http://www.w3.org/2000/svg";
+
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+    // Horizontal axis (X)
+    const xAxis = document.createElementNS(NS, 'line');
+    xAxis.setAttribute('x1', xToPx(X_MIN));
+    xAxis.setAttribute('y1', yToPx(0));
+    xAxis.setAttribute('x2', xToPx(X_MAX));
+    xAxis.setAttribute('y2', yToPx(0));
+    xAxis.setAttribute('stroke', '#61dafbcc');
+    xAxis.setAttribute('stroke-width', '2');
+    svg.appendChild(xAxis);
+
+    // Vertical axis (Y)
+    const yAxis = document.createElementNS(NS, 'line');
+    yAxis.setAttribute('x1', xToPx(0));
+    yAxis.setAttribute('y1', yToPx(Y_MIN));
+    yAxis.setAttribute('x2', xToPx(0));
+    yAxis.setAttribute('y2', yToPx(Y_MAX));
+    yAxis.setAttribute('stroke', '#61dafbcc');
+    yAxis.setAttribute('stroke-width', '2');
+    svg.appendChild(yAxis);
+
+    // X ticks and labels
+    for(let i = X_MIN; i <= X_MAX; i++) {
+      const xTick = document.createElementNS(NS, "line");
+      xTick.setAttribute("x1", xToPx(i));
+      xTick.setAttribute("y1", yToPx(0) - 5);
+      xTick.setAttribute("x2", xToPx(i));
+      xTick.setAttribute("y2", yToPx(0) + 5);
+      xTick.setAttribute("stroke", "#61dafb88");
+      xTick.setAttribute("stroke-width", "1");
+      svg.appendChild(xTick);
+
+      if(i !== 0) {
+        const xLabel = document.createElementNS(NS, "text");
+        xLabel.setAttribute("x", xToPx(i));
+        xLabel.setAttribute("y", yToPx(0) + 18);
+        xLabel.setAttribute("class", "axis-label");
+        xLabel.textContent = i;
+        svg.appendChild(xLabel);
+      }
+    }
+
+    // Y ticks and labels
+    for(let j = Y_MIN; j <= Y_MAX; j++) {
+      const yTick = document.createElementNS(NS, "line");
+      yTick.setAttribute("x1", xToPx(0) - 5);
+      yTick.setAttribute("y1", yToPx(j));
+      yTick.setAttribute("x2", xToPx(0) + 5);
+      yTick.setAttribute("y2", yToPx(j));
+      yTick.setAttribute("stroke", "#61dafb88");
+      yTick.setAttribute("stroke-width", "1");
+      svg.appendChild(yTick);
+
+      if(j !== 0) {
+        const yLabel = document.createElementNS(NS, "text");
+        yLabel.setAttribute("x", xToPx(0) - 12);
+        yLabel.setAttribute("y", yToPx(j) + 4);
+        yLabel.setAttribute("class", "axis-label");
+        yLabel.textContent = j;
+        svg.appendChild(yLabel);
+      }
+    }
+
+    // Origin label
+    const originLabel = document.createElementNS(NS, "text");
+    originLabel.setAttribute("x", xToPx(0) - 10);
+    originLabel.setAttribute("y", yToPx(0) + 15);
+    originLabel.setAttribute("class", "axis-label");
+    originLabel.textContent = "0";
+    svg.appendChild(originLabel);
+
+    // Axis titles X and Y
+    const xTitle = document.createElementNS(NS, "text");
+    xTitle.setAttribute("x", xToPx(X_MAX));
+    xTitle.setAttribute("y", yToPx(0) + 30);
+    xTitle.setAttribute("class", "axis-label");
+    xTitle.textContent = "x";
+    svg.appendChild(xTitle);
+
+    const yTitle = document.createElementNS(NS, "text");
+    yTitle.setAttribute("x", xToPx(0) - 20);
+    yTitle.setAttribute("y", yToPx(Y_MAX));
+    yTitle.setAttribute("class", "axis-label");
+    yTitle.textContent = "y";
+    svg.appendChild(yTitle);
+  }
+
+  // Prepare circles for points, initially placed offscreen or at axis zero, inactive
+  let pointElements = [];
+
+  function initPoints() {
+    const NS = "http://www.w3.org/2000/svg";
+    pointElements = [];
+
+    points.forEach(pt => {
+      const c = document.createElementNS(NS, "circle");
+      c.setAttribute("cx", xToPx(0));
+      c.setAttribute("cy", yToPx(0));
+      c.setAttribute("r", 5);
+      c.classList.add('point', 'inactive');
+      c.setAttribute("aria-label", `${pt.name}, coordenadas ${pt.coords[0]}, ${pt.coords[1]}`);
+      c.setAttribute("tabindex", "-1");
+      svg.appendChild(c);
+      pointElements.push(c);
+    });
+  }
+
+  // Animate point moving from axis center to its coordinate position
+  function animatePointToPosition(index, callback) {
+    if(index < 0 || index >= pointElements.length) return;
+    const c = pointElements[index];
+    const [x, y] = points[index].coords;
+    c.style.transition = 'cx 1s ease, cy 1s ease, r 0.5s ease, fill 0.5s ease, stroke-width 0.5s ease, filter 0.5s ease';
+    c.setAttribute('cx', xToPx(x));
+    c.setAttribute('cy', yToPx(y));
+    setTimeout(() => {
+      if(callback) callback();
+    }, 1200);
+  }
+
+  // Update highlight and explanation for current step
+  let currentStep = 0;
+  const explanationDiv = document.getElementById('explanation');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const progressBar = document.getElementById('progress-bar');
+
+  function updateUI() {
+    // Update all points classes for inactive or active
+    pointElements.forEach((c, i) => {
+      if(i === currentStep) {
+        c.classList.remove('inactive');
+        c.classList.add('active');
+        c.setAttribute('r', 9);
+      } else {
+        c.classList.remove('active');
+        c.classList.add('inactive');
+        c.setAttribute('r', 5);
+      }
+    });
+    // Update explanation text
+    explanationDiv.innerHTML = points[currentStep].explanation;
+
+    // Update buttons disabled state
+    prevBtn.disabled = (currentStep === 0);
+    nextBtn.disabled = (currentStep === points.length - 1);
+
+    // Update progress bar
+    const progressPercent = ((currentStep + 1) / points.length) * 100;
+    progressBar.style.width = progressPercent + '%';
+  }
+
+  function goToStep(n) {
+    if(n < 0 || n >= points.length) return;
+    currentStep = n;
+    // Animate this point to its position if not yet there
+    const c = pointElements[currentStep];
+    // Only animate if point is still at center (cx ~= xToPx(0))
+    if(Math.abs(c.cx.baseVal.value - xToPx(0)) < 1 &&
+       Math.abs(c.cy.baseVal.value - yToPx(0)) < 1) {
+      animatePointToPosition(currentStep, updateUI);
+    } else {
+      updateUI();
+    }
+  }
+
+  // Button event listeners
+  prevBtn.addEventListener('click', () => {
+    if(currentStep > 0) goToStep(currentStep - 1);
+  });
+  nextBtn.addEventListener('click', () => {
+    if(currentStep < points.length - 1) goToStep(currentStep + 1);
+  });
+
+  // On load initialize everything
+  function init() {
+    drawAxes();
+    initPoints();
+    // Animate and show first step
+    goToStep(0);
+  }
+
+  window.addEventListener('load', init);
+})();
+</script>
+</body>
+</html>
+
+Gerardo Rondón 
