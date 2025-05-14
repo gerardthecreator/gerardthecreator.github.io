@@ -1,0 +1,737 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starboy - Moda Urbana y Deportiva</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@900&display=swap');
+
+        /* Estilos globales */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0a0f1c, #2c3e50);
+            color: #e0e0e0;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #00d4ff #2c2f3a;
+            position: relative;
+        }
+
+        /* Barra de desplazamiento personalizado */
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        body::-webkit-scrollbar-track {
+            background: #2c2f3a;
+            border-radius: 4px;
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background: #00d4ff;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background: #ff0048;
+        }
+
+        /* Animación de puntos azules como nieve */
+        .snow-background {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            background: linear-gradient(180deg, var(--snowflake-color), #b3e5fc);
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) translateX(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(50vh) translateX(calc(40px * var(--direction))) rotate(180deg);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(110vh) translateX(calc(40px * var(--direction))) rotate(360deg);
+                opacity: 0.2;
+            }
+        }
+
+        /* Encabezado */
+        header {
+            background: linear-gradient(to right, #0a0f1c, #1b263b);
+            color: #ffffff;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 2.5rem;
+            animation: bounce 2s ease-in-out infinite;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow: 0 0 8px #00d4ff;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        header p {
+            font-size: 1rem;
+            margin-top: 0.9rem;
+            color: #b0b0b0;
+        }
+
+        /* Contenido principal */
+        main {
+            max-width: 100%;
+            margin: 1.5rem auto;
+            padding: 0 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        main h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #00d4ff;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            padding: 0 0.5rem;
+        }
+
+        .product {
+            background: rgba(44, 47, 58, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #00d4ff;
+            animation: zoomIn 0.5s ease forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        .product:hover {
+            transform: translateY(-8px) rotateZ(2deg);
+            box-shadow: 0 12px 30px rgba(0, 212, 255, 0.4);
+            background: rgba(44, 47, 58, 0.7);
+            animation: float 0.3s ease forwards;
+        }
+
+        @keyframes zoomIn {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotateZ(0);
+            }
+            100% {
+                transform: translateY(-8px) rotateZ(2deg);
+            }
+        }
+
+        .product img {
+            width: 100%;
+            height: 220px;
+            object-fit: contain;
+            background: #2c2f3a;
+            padding: 0.3rem;
+            transition: transform 0.4s ease;
+            filter: brightness(90%);
+            max-width: 100%;
+        }
+
+        .product:hover img {
+            transform: scale(1.05);
+            filter: brightness(100%);
+        }
+
+        .product-info {
+            padding: 1.4rem;
+            background: #2c2f3a;
+        }
+
+        .product h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.4rem;
+            color: #00d4ff;
+            text-transform: uppercase;
+        }
+
+        .product p {
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+            color: #b0b0b0;
+            line-height: 1.4;
+        }
+
+        .price {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #00FF00;
+            margin-bottom: 0.8rem;
+        }
+
+        .product-button {
+            width: 100%;
+            padding: 0.4rem;
+            background: linear-gradient(45deg, #ff0048, #00d4ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.5);
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1.2px;
+            animation: pulse 2s infinite;
+            margin-top: 0.6rem;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .product-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.7);
+            background: linear-gradient(45deg, #00d4ff, #ff0048);
+        }
+
+        /* Ventana emergente */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(3px);
+            z-index: 998;
+            animation: blurIn 0.3s forwards;
+        }
+
+        @keyframes blurIn {
+            0% {
+                backdrop-filter: blur(0);
+                opacity: 0;
+            }
+            100% {
+                backdrop-filter: blur(3px);
+                opacity: 1;
+            }
+        }
+
+        .expanded {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            max-width: 360px;
+            max-height: 95vh;
+            background: #1c2526;
+            z-index: 999;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+            overflow-y: auto;
+            animation: popUp 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #00d4ff;
+        }
+
+        @keyframes popUp {
+            0% {
+                transform: translate(-50%, -50%) scale(0.7);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Estilos del carrusel */
+        .carousel {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-bottom: 1px solid #00d4ff;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.3s ease;
+        }
+
+        .carousel img {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            background: #1c2526;
+            padding: 0.3rem 0;
+            filter: brightness(90%);
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+
+        @media (min-width: 600px) {
+            .carousel img {
+                height: 300px;
+            }
+        }
+
+        .carousel-prev,
+        .carousel-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #00d4ff;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background 0.3s ease, transform 0.3s ease, color 0.3s ease;
+            z-index: 1001;
+        }
+
+        .carousel-prev:hover,
+        .carousel-next:hover {
+            background: rgba(0, 0, 0, 0.8);
+            color: #D4AF37;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-prev {
+            left: 10px;
+        }
+
+        .carousel-next {
+            right: 10px;
+        }
+
+        .carousel[data-images="1"] .carousel-prev,
+        .carousel[data-images="1"] .carousel-next {
+            display: none;
+        }
+
+        .expanded-details {
+            padding: 1.2rem;
+        }
+
+        .expanded-details h2 {
+            color: #00d4ff;
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+
+        .expanded-details p {
+            font-size: 0.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.3;
+            color: #b0b0b0;
+        }
+
+        .expanded-details .label {
+            font-size: 0.8rem;
+            color: #00d4ff;
+            margin-bottom: 0.2rem;
+            font-weight: bold;
+        }
+
+        .expanded-details ul {
+            margin: 0 0 0.4rem 1rem;
+            color: #e0e0e0;
+        }
+
+        .expanded-details ul li {
+            margin-bottom: 0.1rem;
+            font-size: 0.7rem;
+        }
+
+        .expanded-details .price {
+            font-size: 0.8rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .expanded-details button {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(45deg, #ff0048, #00d4ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.5);
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1.2px;
+            animation: pulse 2s infinite;
+            margin-top: 0.5rem;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        .expanded-details button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.7);
+            background: linear-gradient(45deg, #00d4ff, #ff0048);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.02);
+                opacity: 0.95;
+            }
+        }
+
+        .expanded-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #00d4ff;
+            z-index: 1000;
+            background: #2c2f3a;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .expanded-close:hover {
+            color: #D4AF37;
+            transform: rotate(360deg);
+        }
+
+        /* Pie de página */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #0a0f1c;
+            color: #b0b0b0;
+            font-size: 0.8rem;
+            border-top: 1px solid #00d4ff;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="snow-background"></div>
+
+    <header>
+        <h1>Starboy</h1>
+        <p>Descubre lo que Starboy tiene para tí "𝗖𝗼𝗻 𝗲𝗻𝘃𝗶𝗼𝘀 𝗮 𝘁𝗼𝗱𝗮 𝗩𝗲𝗻𝗲𝘇𝘂𝗲𝗹𝗮"</p>
+    </header>
+
+    <main>
+        <h2>Nuestros Productos</h2>
+        <div class="products" id="products"></div>
+    </main>
+
+    <footer>
+        © 2025 Starboy. Todos los derechos reservados.
+    </footer>
+
+    <script type="module">
+        // Generar puntos azules como nieve
+        const snowBackground = document.querySelector('.snow-background');
+        const createSnowflake = () => {
+            const snowflake = document.createElement('span');
+            snowflake.className = 'snowflake';
+            const size = Math.random() * 4 + 2; // 2-6px
+            const duration = Math.random() * 6 + 6; // 6-12s
+            const delay = Math.random() * 5; // 0-5s
+            const left = Math.random() * 100; // 0-100%
+            const direction = Math.random() < 0.5 ? 1 : -1; // Izquierda o derecha
+            const colors = ['#4dd0e1', '#81d4fa', '#b3e5fc'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            snowflake.style.width = `${size}px`;
+            snowflake.style.height = `${size}px`;
+            snowflake.style.left = `${left}%`;
+            snowflake.style.animationDuration = `${duration}s`;
+            snowflake.style.animationDelay = `${delay}s`;
+            snowflake.style.setProperty('--snowflake-color', color);
+            snowflake.style.setProperty('--direction', direction);
+            snowBackground.appendChild(snowflake);
+        };
+
+        // Crear 75 puntos
+        for (let i = 0; i < 75; i++) {
+            createSnowflake();
+        }
+
+        // Lista de productos con imágenes opcionales (una o dos)
+        const productos = [
+            {
+                nombre: "Camisa Inter de Miami",
+                descripcion: "Camisa deportiva Inter de Miami, dorsal 10 Messi",
+                precio: "$18",
+                extras: [
+                    "100% algodón",
+                    "Talla L",
+                    "Estampado duradero",
+                    "Todos los parches incluidos"
+                ],
+                imagenes: [
+                    "https://images.unsplash.com/photo-1747196417736-35ad9ff5563d?q=80&w=1035&auto=format&fit=crop&ixlib=rb-4.0.3",
+                    "https://images.unsplash.com/photo-1747199110820-22a3c39e6ab2?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.0.3"
+                ]
+            },
+            {
+                nombre: "Camisa Los Santos f.c",
+                descripcion: "Camisa deportiva, Los Santos 11 Neymar Jr",
+                precio: "$20",
+                extras: [
+                    "Tejido transpirable",
+                    "Talla L",
+                    "Detalles termosellados",
+                    "100% algodón"
+                ],
+                imagenes: [
+                    "https://images.unsplash.com/photo-1747198083911-bf3a0dd7acb0?q=80&w=1114&auto=format&fit=crop&ixlib=rb-4.0.3"
+                ]
+            },
+            {
+                nombre: "Camisa de Los Leones",
+                descripcion: "Camisa AAA de los Leones del Caracas",
+                precio: "$30",
+                extras: [
+                    "100% algodón",
+                    "Anti-sudor",
+                    "Talla L",
+                    "Escudo bordado"
+                ],
+                imagenes: [
+                    "https://images.unsplash.com/photo-1747198710058-8cb228cde73c?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.0.3",
+                    "https://images.unsplash.com/photo-1747196417736-35ad9ff5563d?q=80&w=1035&auto=format&fit=crop&ixlib=rb-4.0.3"
+                ]
+            },
+            {
+                nombre: "Camisa Manchester United 2007",
+                descripcion: "Camisa deportiva Manchester United, dorsal 7 Cristiano Ronaldo",
+                precio: "$30",
+                extras: [
+                    "100% algodón",
+                    "Tejido ligero",
+                    "Talla L",
+                    "Todos los parches incluidos termosellados"
+                ],
+                imagenes: [
+                    "https://images.unsplash.com/photo-1747199110820-22a3c39e6ab2?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.0.3"
+                ]
+            }
+        ];
+
+        // Generar tarjetas de productos
+        const container = document.querySelector("#products");
+        productos.forEach(producto => {
+            const mensajeWhatsApp = encodeURIComponent(
+                `¡Hola! Quiero la ${producto.nombre}.\n` +
+                `Descripción: ${producto.descripcion}\n` +
+                `Precio: ${producto.precio}\n` +
+                `Características:\n${producto.extras.map(e => `- ${e}`).join("\n")}`
+            );
+            const enlaceWhatsApp = `https://wa.me/584129363013?text=${mensajeWhatsApp}`;
+
+            const div = document.createElement("div");
+            div.className = "product";
+            div.innerHTML = `
+                <img src="${producto.imagenes.at(0)}" alt="Camisa ${producto.nombre}" loading="lazy" data-imagen="${producto.imagenes.at(0)}">
+                <div class="product-info">
+                    <h3>${producto.nombre}</h3>
+                    <p>${producto.descripcion}</p>
+                    <div class="price">${producto.precio}</div>
+                    <a href="${enlaceWhatsApp}" class="product-button">¡Quiero esta!</a>
+                </div>
+            `;
+            div.addEventListener("click", (e) => {
+                if (!e.target.closest('.product-button')) {
+                    expandirProducto(producto);
+                }
+            });
+            container.appendChild(div);
+        });
+
+        // Mostrar ventana emergente con detalles
+        const expandirProducto = (producto) => {
+            const overlay = document.createElement("div");
+            overlay.className = "overlay";
+            overlay.addEventListener("click", cerrarExpandido);
+
+            const mensajeWhatsApp = encodeURIComponent(
+                `¡Hola! Quiero la ${producto.nombre}.\n` +
+                `Descripción: ${producto.descripcion}\n` +
+                `Precio: ${producto.precio}\n` +
+                `Características:\n${producto.extras.map(e => `- ${e}`).join("\n")}`
+            );
+            const enlaceWhatsApp = `https://wa.me/584129363013?text=${mensajeWhatsApp}`;
+
+            const imagenesHTML = producto.imagenes.map((img, index) => `
+                <img src="${img}" alt="Camisa ${producto.nombre} - Imagen ${index + 1}" loading="lazy" data-imagen="${img}">
+            `).join("");
+
+            const expanded = document.createElement("div");
+            expanded.className = "expanded";
+            expanded.innerHTML = `
+                <span class="expanded-close">✕</span>
+                <div class="carousel" data-images="${producto.imagenes.length}">
+                    <div class="carousel-track">
+                        ${imagenesHTML}
+                    </div>
+                    <button class="carousel-prev">❮</button>
+                    <button class="carousel-next">❯</button>
+                </div>
+                <div class="expanded-details">
+                    <div>
+                        <h2>${producto.nombre}</h2>
+                        <p>${producto.descripcion}</p>
+                        <div class="label">Características:</div>
+                        <ul>
+                            ${producto.extras.map(e => `<li>${e}</li>`).join("")}
+                        </ul>
+                        <p class="price">Precio: ${producto.precio}</p>
+                    </div>
+                    <button onclick="window.location.href='${enlaceWhatsApp}'">¡Quiero esta!</button>
+                </div>
+            `;
+
+            const closeButton = expanded.querySelector(".expanded-close");
+            closeButton.addEventListener("click", cerrarExpandido);
+
+            // Configurar carrusel
+            const carousel = expanded.querySelector(".carousel");
+            const track = carousel.querySelector(".carousel-track");
+            const prevButton = carousel.querySelector(".carousel-prev");
+            const nextButton = carousel.querySelector(".carousel-next");
+            let currentIndex = 0;
+            const totalImages = producto.imagenes.length;
+
+            const updateCarousel = () => {
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            };
+
+            prevButton.addEventListener("click", () => {
+                currentIndex = currentIndex > 0 ? currentIndex - 1 : totalImages - 1;
+                updateCarousel();
+            });
+
+            nextButton.addEventListener("click", () => {
+                currentIndex = currentIndex < totalImages - 1 ? currentIndex + 1 : 0;
+                updateCarousel();
+            });
+
+            document.body.appendChild(overlay);
+            document.body.appendChild(expanded);
+        };
+
+        // Cerrar ventana emergente
+        const cerrarExpandido = () => {
+            document.querySelectorAll(".overlay, .expanded").forEach(e => e.remove());
+        };
+    </script>
+</body>
+</html>
