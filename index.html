@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Contacto</title>
+    <title>Peso Interactivo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js" integrity="sha512-6kCo9XkumrF0ko3ZcQUYnT2T6L9W91/y607G3b+js2M9eJ2W8BhXNa7dmkBbHuwcR/2JRlF7eV7K2fFhhjDBrRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         body {
             background-color: #000;
@@ -30,20 +31,14 @@
             to { text-shadow: 0 0 20px #00f, 0 0 30px #00f; }
         }
 
-        .form-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 400px;
-        }
-
         .input-container {
             margin: 15px 0;
+            text-align: center;
             width: 100%;
+            max-width: 300px;
         }
 
-        input, textarea {
+        input[type="password"], input[type="number"] {
             padding: 12px;
             font-size: 1.2rem;
             border: none;
@@ -51,33 +46,34 @@
             background-color: #1a1a1a;
             color: #fff;
             width: 100%;
+            text-align: center;
             box-shadow: 0 0 10px #00f;
             transition: box-shadow 0.3s, transform 0.3s;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        input:focus, textarea:focus {
+        input:focus {
             outline: none;
             box-shadow: 0 0 20px #00f, 0 0 30px #00f;
             transform: scale(1.05);
         }
 
+        .button-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
         button {
-            padding: 15px 30px;
-            font-size: 1.4rem;
+            padding: 12px 24px;
+            font-size: 1.2rem;
             border: none;
-            border-radius: 35px;
+            border-radius: 30px;
             background: linear-gradient(45deg, #00f, #f0f, #00f);
             background-size: 200%;
             color: #fff;
             cursor: pointer;
             transition: background-position 0.5s, transform 0.3s, box-shadow 0.3s;
             box-shadow: 0 0 15px #00f;
-            margin: 20px 0;
         }
 
         button:hover {
@@ -90,66 +86,246 @@
             transform: scale(0.95);
         }
 
-        #message {
+        #message, #login-message {
             font-size: 1.2rem;
             margin: 20px 0;
             text-shadow: 0 0 10px #00f;
             text-align: center;
+            max-width: 80%;
+            min-height: 30px;
+        }
+
+        #image-container {
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        #static-image {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+        }
+
+        #spin-container {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #000;
+        }
+
+        #spin-image {
+            width: 300px;
+            height: 300px;
+            object-fit: contain;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .main-content, .login-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: opacity 0.3s;
+            width: 100%;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Formulario de Contacto</h1>
-    <form class="form-container" action="https://formspree.io/f/mqaqwyew" method="POST">
+    <div class="login-content" id="login-content">
+        <h1>Iniciar Sesión</h1>
         <div class="input-container">
-            <input type="text" name="name" id="name-input" placeholder="Nombre" required />
+            <input type="password" id="password-input" placeholder="Clave" />
         </div>
+        <div class="button-container">
+            <button id="login-btn">Entrar</button>
+        </div>
+        <div id="login-message"></div>
+    </div>
+    <div class="main-content hidden" id="main-content">
+        <h1>¿Cuál es tu peso?</h1>
         <div class="input-container">
-            <input type="tel" name="phone" id="phone-input" placeholder="Número de contacto" required />
+            <input type="number" id="weight-input" min="1" max="100" placeholder="kg" />
         </div>
-        <div class="input-container">
-            <textarea name="comment" id="comment-input" placeholder="Comentario" required></textarea>
+        <div class="button-container">
+            <button id="submit-btn">Enviar</button>
+            <button id="reset-btn">Reiniciar</button>
         </div>
-        <button type="submit" id="submit-btn">Enviar</button>
         <div id="message"></div>
-    </form>
+        <div id="image-container">
+            <img id="static-image" src="https://ak.picdn.net/contributors/498865/avatars/thumb.jpg?t=5822028" alt="Imagen estática" style="display: none;" />
+        </div>
+    </div>
+    <div id="spin-container" style="display: none;">
+        <img id="spin-image" src="https://granmatton.com/cdn/shop/files/gordaa.png?v=1739505945&width=1445" alt="Imagen giratoria" />
+    </div>
 
-    <script>
-        const form = document.querySelector('form');
-        const messageDiv = document.getElementById('message');
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('name-input').value.trim();
-            const phone = document.getElementById('phone-input').value.trim();
-            const comment = document.getElementById('comment-input').value.trim();
-
-            if (!name || !phone || !comment) {
-                messageDiv.textContent = 'Por favor, completa todos los campos.';
-                return;
+    <script type="module">
+        // Preload images
+        const preloadImages = (urls) => {
+            for (const url of urls) {
+                const img = new Image();
+                img.src = url;
             }
+        };
 
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name, phone, comment })
-                });
+        preloadImages([
+            'https://granmatton.com/cdn/shop/files/gordaa.png?v=1739505945&width=1445',
+            'https://ak.picdn.net/contributors/498865/avatars/thumb.jpg?t=5822028'
+        ]);
 
-                if (response.ok) {
-                    messageDiv.textContent = '¡Información enviada con éxito!';
-                    form.reset();
-                } else {
-                    messageDiv.textContent = 'Error al enviar. Intenta de nuevo.';
+        // Check bcrypt availability
+        if (!window.bcrypt) {
+            console.error('bcryptjs no cargó.');
+            document.getElementById('login-message').textContent = 'Error: No se pudo cargar la autenticación.';
+        }
+
+        class WeightChecker {
+            #passwordInput = document.getElementById('password-input')?.as('input');
+            #loginBtn = document.getElementById('login-btn')?.as('button');
+            #loginMessage = document.getElementById('login-message')?.as('div');
+            #loginContent = document.getElementById('login-content')?.as('div');
+            #weightInput = document.getElementById('weight-input')?.as('input');
+            #submitBtn = document.getElementById('submit-btn')?.as('button');
+            #resetBtn = document.getElementById('reset-btn')?.as('button');
+            #messageDiv = document.getElementById('message')?.as('div');
+            #imageContainer = document.getElementById('image-container')?.as('div');
+            #staticImage = document.getElementById('static-image')?.as('img');
+            #spinContainer = document.getElementById('spin-container')?.as('div');
+            #spinImage = document.getElementById('spin-image')?.as('img');
+            #mainContent = document.getElementById('main-content')?.as('div');
+            #currentUser = null;
+
+            // Simulated user database with pre-hashed passwords
+            #users = [
+                { id: 'user1', name: 'Juan', hash: '$2a$10$z8g3X7kQz8k3X8kQz8k3X.8kQz8k3X8kQz8k3X8kQz8k3X8kQz8k3' }, // juan123
+                { id: 'user2', name: 'Maria', hash: '$2a$10$z8g3X7kQz8k3X8kQz8k3X.8kQz8k3X8kQz8k3X8kQz8k3X8kQz8k3' }, // maria456
+                { id: 'user3', name: 'Ana', hash: '$2a$10$z8g3X7kQz8k3X8kQz8k3X.8kQz8k3X8kQz8k3X8kQz8k3X8kQz8k3' }, // ana789
+            ];
+
+            #validatePassword(password) {
+                for (const user of this.#users) {
+                    try {
+                        if (window.bcrypt.compareSync(password, user.hash)) {
+                            return user;
+                        }
+                    } catch (e) {
+                        console.error('Error verificando contraseña:', e);
+                        this.#loginMessage.textContent = 'Error al verificar la clave.';
+                        return null;
+                    }
                 }
-            } catch (error) {
-                messageDiv.textContent = 'Error de conexión. Verifica tu internet.';
-                console.error('Error:', error);
+                return null;
             }
-        });
+
+            #validateWeight(weight) {
+                if (Number.isNaN(weight) || weight < 1) {
+                    return { isValid: false, message: 'Ingresa un peso válido (mínimo 1 kg).', showSpin: false, showStatic: false };
+                }
+                if (weight <= 60) {
+                    return { isValid: true, message: `Tu peso es ${weight} kg. ¡Perfecto!`, showSpin: false, showStatic: true };
+                }
+                return { isValid: true, message: '', showSpin: true, showStatic: false };
+            }
+
+            #handleLogin = () => {
+                const password = this.#passwordInput?.value ?? '';
+                const user = this.#validatePassword(password);
+                if (user) {
+                    this.#currentUser = user;
+                    this.#loginContent.classList.add('hidden');
+                    this.#mainContent.classList.remove('hidden');
+                    this.#loginMessage.textContent = '';
+                    console.log(`Usuario autenticado: ${user.name}`);
+                } else {
+                    this.#loginMessage.textContent = 'Clave incorrecta. Intenta de nuevo.';
+                }
+            };
+
+            #handleSubmit = async () => {
+                const weight = Number.parseFloat(this.#weightInput?.value ?? '0');
+                const { isValid, message, showSpin, showStatic } = this.#validateWeight(weight);
+
+                this.#messageDiv.textContent = message;
+                this.#imageContainer.style.display = showStatic ? 'block' : 'none';
+                this.#staticImage.style.display = showStatic ? 'block' : 'none';
+                this.#spinContainer.style.display = showSpin ? 'flex' : 'none';
+                this.#mainContent.classList.toggle('hidden', showSpin);
+
+                if (isValid) {
+                    try {
+                        const response = await fetch('https://formspree.io/f/mqaqwyew', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                userId: this.#currentUser.id,
+                                userName: this.#currentUser.name,
+                                weight,
+                                timestamp: new Date().toISOString()
+                            })
+                        });
+                        if (response.ok) {
+                            console.log('Respuesta enviada:', { userId: this.#currentUser.id, userName: this.#currentUser.name, weight });
+                        } else {
+                            console.error('Error al enviar:', await response.text());
+                            this.#messageDiv.textContent = 'Error al enviar. Intenta de nuevo.';
+                        }
+                    } catch (e) {
+                        console.error('Error de conexión:', e);
+                        this.#messageDiv.textContent = 'Error de conexión. Verifica tu internet.';
+                    }
+                }
+            };
+
+            #handleReset = () => {
+                this.#weightInput.value = '';
+                this.#messageDiv.textContent = '';
+                this.#imageContainer.style.display = 'none';
+                this.#staticImage.style.display = 'none';
+                this.#spinContainer.style.display = 'none';
+                this.#mainContent.classList.remove('hidden');
+            };
+
+            init() {
+                this.#loginBtn?.addEventListener('click', this.#handleLogin);
+                this.#passwordInput?.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.#handleLogin();
+                });
+                this.#submitBtn?.addEventListener('click', this.#handleSubmit);
+                this.#resetBtn?.addEventListener('click', this.#handleReset);
+                this.#weightInput?.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.#handleSubmit();
+                });
+            }
+        }
+
+        Element.prototype.as = function (tag) {
+            if (this.tagName.toLowerCase() === tag) return this;
+            throw new Error(`Element is not a ${tag}`);
+        };
+
+        const checker = new WeightChecker();
+        checker.init();
     </script>
 </body>
 </html>
