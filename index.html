@@ -3,237 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peso Interactivo Mejorado</title>
+    <title>Formulario de Contacto</title>
     <style>
         body {
             background-color: #000;
             color: #fff;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            padding: 20px;
             overflow-y: auto;
         }
 
         h1 {
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             margin: 20px 0;
-            text-shadow: 0 0 12px #0ff, 0 0 20px #0ff;
-            animation: glow 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 15px #00f, 0 0 25px #00f;
+            animation: glow 1.5s ease-in-out infinite alternate;
         }
 
         @keyframes glow {
-            from { text-shadow: 0 0 10px #0ff, 0 0 15px #0ff; }
-            to { text-shadow: 0 0 15px #0ff, 0 0 25px #0ff; }
+            from { text-shadow: 0 0 10px #00f, 0 0 20px #00f; }
+            to { text-shadow: 0 0 20px #00f, 0 0 30px #00f; }
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
         }
 
         .input-container {
-            margin: 20px 0;
-            text-align: center;
+            margin: 15px 0;
+            width: 100%;
         }
 
-        input[type="number"] {
+        input, textarea {
             padding: 12px;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             border: none;
             border-radius: 8px;
             background-color: #1a1a1a;
             color: #fff;
-            width: 120px;
-            text-align: center;
-            box-shadow: 0 0 10px #0ff;
+            width: 100%;
+            box-shadow: 0 0 10px #00f;
             transition: box-shadow 0.3s, transform 0.3s;
         }
 
-        input[type="number"]:focus {
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input:focus, textarea:focus {
             outline: none;
-            box-shadow: 0 0 20px #0ff, 0 0 30px #0ff;
+            box-shadow: 0 0 20px #00f, 0 0 30px #00f;
             transform: scale(1.05);
         }
 
-        .button-container {
-            display: flex;
-            gap: 25px;
-            margin: 20px 0;
-        }
-
         button {
-            padding: 14px 28px;
-            font-size: 1.3rem;
+            padding: 15px 30px;
+            font-size: 1.4rem;
             border: none;
-            border-radius: 30px;
-            background: linear-gradient(45deg, #0ff, #f0f, #0ff);
+            border-radius: 35px;
+            background: linear-gradient(45deg, #00f, #f0f, #00f);
             background-size: 200%;
-            color: #000;
+            color: #fff;
             cursor: pointer;
             transition: background-position 0.5s, transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 0 15px #0ff;
+            box-shadow: 0 0 15px #00f;
+            margin: 20px 0;
         }
 
         button:hover {
             background-position: right;
-            transform: scale(1.12);
-            box-shadow: 0 0 25px #0ff;
+            transform: scale(1.15);
+            box-shadow: 0 0 30px #00f;
         }
 
         button:active {
-            transform: scale(0.98);
+            transform: scale(0.95);
         }
 
         #message {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             margin: 20px 0;
-            text-shadow: 0 0 8px #0ff;
-            max-width: 80%;
+            text-shadow: 0 0 10px #00f;
             text-align: center;
-            min-height: 30px;
-        }
-
-        #image-container {
-            margin-top: 20px;
-            display: none;
-            text-align: center;
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-        }
-
-        #static-image {
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
-        }
-
-        #spin-container {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #000;
-        }
-
-        #spin-image {
-            width: 300px;
-            height: 300px;
-            object-fit: contain;
-            animation: spin 1.5s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: opacity 0.3s;
-        }
-
-        .main-content.hidden {
-            opacity: 0;
-            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <div class="main-content" id="main-content">
-        <h1>¿Cuál es tu peso?</h1>
+    <h1>Formulario de Contacto</h1>
+    <form class="form-container" action="https://formspree.io/f/mqaqwyew" method="POST">
         <div class="input-container">
-            <input type="number" id="weight-input" min="1" max="100" placeholder="kg" />
+            <input type="text" name="name" id="name-input" placeholder="Nombre" required />
         </div>
-        <div class="button-container">
-            <button id="submit-btn">Enviar</button>
-            <button id="reset-btn">Reiniciar</button>
+        <div class="input-container">
+            <input type="tel" name="phone" id="phone-input" placeholder="Número de contacto" required />
         </div>
+        <div class="input-container">
+            <textarea name="comment" id="comment-input" placeholder="Comentario" required></textarea>
+        </div>
+        <button type="submit" id="submit-btn">Enviar</button>
         <div id="message"></div>
-        <div id="image-container">
-            <img id="static-image" src="https://ak.picdn.net/contributors/498865/avatars/thumb.jpg?t=5822028" alt="Imagen estática" style="display: none;" />
-        </div>
-    </div>
-    <div id="spin-container" style="display: none;">
-        <img id="spin-image" src="https://granmatton.com/cdn/shop/files/gordaa.png?v=1739505945&width=1445" alt="Imagen giratoria" />
-    </div>
+    </form>
 
-    <script type="module">
-        // Preload images to ensure they load correctly
-        const preloadImages = (urls) => {
-            for (const url of urls) {
-                const img = new Image();
-                img.src = url;
-            }
-        };
+    <script>
+        const form = document.querySelector('form');
+        const messageDiv = document.getElementById('message');
 
-        preloadImages([
-            'https://granmatton.com/cdn/shop/files/gordaa.png?v=1739505945&width=1445',
-            'https://ak.picdn.net/contributors/498865/avatars/thumb.jpg?t=5822028'
-        ]);
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name-input').value.trim();
+            const phone = document.getElementById('phone-input').value.trim();
+            const comment = document.getElementById('comment-input').value.trim();
 
-        class WeightChecker {
-            #weightInput = document.getElementById('weight-input')?.as('input');
-            #submitBtn = document.getElementById('submit-btn')?.as('button');
-            #resetBtn = document.getElementById('reset-btn')?.as('button');
-            #messageDiv = document.getElementById('message')?.as('div');
-            #imageContainer = document.getElementById('image-container')?.as('div');
-            #staticImage = document.getElementById('static-image')?.as('img');
-            #spinContainer = document.getElementById('spin-container')?.as('div');
-            #spinImage = document.getElementById('spin-image')?.as('img');
-            #mainContent = document.getElementById('main-content')?.as('div');
-
-            #validateWeight(weight) {
-                if (Number.isNaN(weight) || weight < 1) {
-                    return { isValid: false, message: 'Ingresa un peso válido (mínimo 1 kg).', showSpin: false, showStatic: false };
-                }
-                if (weight <= 60) {
-                    return { isValid: true, message: `Tu peso es ${weight} kg. ¡Perfecto!`, showSpin: false, showStatic: true };
-                }
-                return { isValid: true, message: '', showSpin: true, showStatic: false };
+            if (!name || !phone || !comment) {
+                messageDiv.textContent = 'Por favor, completa todos los campos.';
+                return;
             }
 
-            #handleSubmit = () => {
-                const weight = Number.parseFloat(this.#weightInput?.value ?? '0');
-                const { isValid, message, showSpin, showStatic } = this.#validateWeight(weight);
-
-                this.#messageDiv.textContent = message;
-                this.#imageContainer.style.display = showStatic ? 'block' : 'none';
-                this.#staticImage.style.display = showStatic ? 'block' : 'none';
-                this.#spinContainer.style.display = showSpin ? 'flex' : 'none';
-                this.#mainContent.classList.toggle('hidden', showSpin);
-            };
-
-            #handleReset = () => {
-                this.#weightInput.value = '';
-                this.#messageDiv.textContent = '';
-                this.#imageContainer.style.display = 'none';
-                this.#staticImage.style.display = 'none';
-                this.#spinContainer.style.display = 'none';
-                this.#mainContent.classList.remove('hidden');
-            };
-
-            init() {
-                this.#submitBtn?.addEventListener('click', this.#handleSubmit);
-                this.#resetBtn?.addEventListener('click', this.#handleReset);
-                this.#weightInput?.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.#handleSubmit();
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, phone, comment })
                 });
+
+                if (response.ok) {
+                    messageDiv.textContent = '¡Información enviada con éxito!';
+                    form.reset();
+                } else {
+                    messageDiv.textContent = 'Error al enviar. Intenta de nuevo.';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Error de conexión. Verifica tu internet.';
+                console.error('Error:', error);
             }
-        }
-
-        // Custom element cast for better type safety
-        Element.prototype.as = function (tag) {
-            if (this.tagName.toLowerCase() === tag) return this;
-            throw new Error(`Element is not a ${tag}`);
-        };
-
-        const checker = new WeightChecker();
-        checker.init();
+        });
     </script>
 </body>
 </html>
