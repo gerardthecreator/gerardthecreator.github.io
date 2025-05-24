@@ -3,182 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peso Interactivo</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js" integrity="sha512-6kCo9XkumrF0ko3ZcQUYnT2T6L9W91/y607G3b+js2M9eJ2W8BhXNa7dmkBbHuwcR/2JRlF7eV7K2fFhhjDBrRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Peso Interactivo Mejorado</title>
     <style>
         body {
             background-color: #000;
             color: #fff;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
             overflow-y: auto;
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin: 20px 0;
-            text-shadow: 0 0 15px #00f, 0 0 25px #00f;
-            animation: glow 1.5s ease-in-out infinite alternate;
+            font-size: 2.8rem;
+            margin-bottom: 25px;
+            text-shadow: 0 0 12px #0ff, 0 0 20px #0ff;
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
         @keyframes glow {
-            from { text-shadow: 0 0 10px #00f, 0 0 20px #00f; }
-            to { text-shadow: 0 0 20px #00f, 0 0 30px #00f; }
+            from { text-shadow: 0 0 10px #0ff, 0 0 15px #0ff; }
+            to { text-shadow: 0 0 15px #0ff, 0 0 25px #0ff; }
         }
 
         .input-container {
-            margin: 15px 0;
+            margin-bottom: 30px;
             text-align: center;
-            width: 100%;
-            max-width: 300px;
         }
 
-        input[type="password"], input[type="number"] {
+        input[type="number"] {
             padding: 12px;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             border: none;
             border-radius: 8px;
             background-color: #1a1a1a;
             color: #fff;
-            width: 100%;
+            width: 120px;
             text-align: center;
-            box-shadow: 0 0 10px #00f;
+            box-shadow: 0 0 10px #0ff;
             transition: box-shadow 0.3s, transform 0.3s;
         }
 
-        input:focus {
+        input[type="number"]:focus {
             outline: none;
-            box-shadow: 0 0 20px #00f, 0 0 30px #00f;
+            box-shadow: 0 0 20px #0ff, 0 0 30px #0ff;
             transform: scale(1.05);
         }
 
         .button-container {
             display: flex;
-            gap: 20px;
-            margin: 20px 0;
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
         button {
-            padding: 12px 24px;
-            font-size: 1.2rem;
+            padding: 14px 28px;
+            font-size: 1.3rem;
             border: none;
             border-radius: 30px;
-            background: linear-gradient(45deg, #00f, #f0f, #00f);
+            background: linear-gradient(45deg, #0ff, #f0f, #0ff);
             background-size: 200%;
-            color: #fff;
+            color: #000;
             cursor: pointer;
             transition: background-position 0.5s, transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 0 15px #00f;
+            box-shadow: 0 0 15px #0ff;
         }
 
         button:hover {
             background-position: right;
-            transform: scale(1.15);
-            box-shadow: 0 0 30px #00f;
+            transform: scale(1.12);
+            box-shadow: 0 0 25px #0ff;
         }
 
         button:active {
-            transform: scale(0.95);
-        }
-
-        #message, #login-message {
-            font-size: 1.2rem;
-            margin: 20px 0;
-            text-shadow: 0 0 10px #00f;
-            text-align: center;
-            max-width: 80%;
-            min-height: 30px;
+            transform: scale(0.98);
         }
 
         #image-container {
-            margin-top: 20px;
             display: none;
             text-align: center;
-            width: 100%;
-            max-width: 300px;
         }
 
-        #static-image {
-            width: 150px;
-            height: 150px;
+        #spin-image, #static-image {
+            width: 250px; /* Tamaño aumentado para mayor impacto */
+            height: 250px;
             object-fit: contain;
-        }
-
-        #spin-container {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #000;
         }
 
         #spin-image {
-            width: 300px;
-            height: 300px;
-            object-fit: contain;
-            animation: spin 1.5s linear infinite;
+            animation: spin 1.2s linear infinite; /* Rotación fluida */
+        }
+
+        #spin-image.centered {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        .main-content, .login-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: opacity 0.3s;
-            width: 100%;
-        }
-
-        .hidden {
-            opacity: 0;
-            pointer-events: none;
-            display: none;
+        #message {
+            font-size: 1.3rem;
+            margin-top: 20px;
+            text-shadow: 0 0 8px #0ff;
+            max-width: 80%;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="login-content" id="login-content">
-        <h1>Iniciar Sesión</h1>
-        <div class="input-container">
-            <input type="password" id="password-input" placeholder="Clave" />
-        </div>
-        <div class="button-container">
-            <button id="login-btn">Entrar</button>
-        </div>
-        <div id="login-message"></div>
+    <h1>¿Cuál es tu peso?</h1>
+    <div class="input-container">
+        <input type="number" id="weight-input" min="1" max="100" placeholder="kg" />
     </div>
-    <div class="main-content hidden" id="main-content">
-        <h1>¿Cuál es tu peso?</h1>
-        <div class="input-container">
-            <input type="number" id="weight-input" min="1" max="100" placeholder="kg" />
-        </div>
-        <div class="button-container">
-            <button id="submit-btn">Enviar</button>
-            <button id="reset-btn">Reiniciar</button>
-        </div>
-        <div id="message"></div>
-        <div id="image-container">
-            <img id="static-image" src="https://ak.picdn.net/contributors/498865/avatars/thumb.jpg?t=5822028" alt="Imagen estática" style="display: none;" />
-        </div>
+    <div class="button-container">
+        <button id="submit-btn">Enviar</button>
+        <button id="reset-btn">Reiniciar</button>
     </div>
-    <div id="spin-container" style="display: none;">
-        <img id="spin-image" src="https://granmatton.com/cdn/shop/files/gordaa.png?v=1739505945&width=1445" alt="Imagen giratoria" />
+    <div id="message"></div>
+    <div id="image-container">
+        <img id="spin-image" src="https://granmatton.com/cdn/shop/files/gordaa.png?v=1739505945&width=1445" alt="Imagen giratoria" style="display: none;" />
+        <img id="static-image" src="https://ak.picdn.net/contributors/498865/avatars/thumb.jpg?t=5822028" alt="Imagen estática" style="display: none;" />
     </div>
 
     <script type="module">
-        // Preload images
+        // Preload images to ensure they load correctly
         const preloadImages = (urls) => {
             for (const url of urls) {
                 const img = new Image();
@@ -191,109 +148,39 @@
             'https://ak.picdn.net/contributors/498865/avatars/thumb.jpg?t=5822028'
         ]);
 
-        // Check bcrypt availability
-        if (!window.bcrypt) {
-            console.error('bcryptjs no cargó.');
-            document.getElementById('login-message').textContent = 'Error: No se pudo cargar la autenticación.';
-        }
-
         class WeightChecker {
-            #passwordInput = document.getElementById('password-input')?.as('input');
-            #loginBtn = document.getElementById('login-btn')?.as('button');
-            #loginMessage = document.getElementById('login-message')?.as('div');
-            #loginContent = document.getElementById('login-content')?.as('div');
-            #weightInput = document.getElementById('weight-input')?.as('input');
-            #submitBtn = document.getElementById('submit-btn')?.as('button');
-            #resetBtn = document.getElementById('reset-btn')?.as('button');
-            #messageDiv = document.getElementById('message')?.as('div');
-            #imageContainer = document.getElementById('image-container')?.as('div');
-            #staticImage = document.getElementById('static-image')?.as('img');
-            #spinContainer = document.getElementById('spin-container')?.as('div');
-            #spinImage = document.getElementById('spin-image')?.as('img');
-            #mainContent = document.getElementById('main-content')?.as('div');
-            #currentUser = null;
-
-            // Simulated user database with pre-hashed passwords
-            #users = [
-                { id: 'user1', name: 'Juan', hash: '$2a$10$z8g3X7kQz8k3X8kQz8k3X.8kQz8k3X8kQz8k3X8kQz8k3X8kQz8k3' }, // juan123
-                { id: 'user2', name: 'Maria', hash: '$2a$10$z8g3X7kQz8k3X8kQz8k3X.8kQz8k3X8kQz8k3X8kQz8k3X8kQz8k3' }, // maria456
-                { id: 'user3', name: 'Ana', hash: '$2a$10$z8g3X7kQz8k3X8kQz8k3X.8kQz8k3X8kQz8k3X8kQz8k3X8kQz8k3' }, // ana789
-            ];
-
-            #validatePassword(password) {
-                for (const user of this.#users) {
-                    try {
-                        if (window.bcrypt.compareSync(password, user.hash)) {
-                            return user;
-                        }
-                    } catch (e) {
-                        console.error('Error verificando contraseña:', e);
-                        this.#loginMessage.textContent = 'Error al verificar la clave.';
-                        return null;
-                    }
-                }
-                return null;
-            }
+            #weightInput = document.getElementById('weight-input');
+            #submitBtn = document.getElementById('submit-btn');
+            #resetBtn = document.getElementById('reset-btn');
+            #messageDiv = document.getElementById('message');
+            #imageContainer = document.getElementById('image-container');
+            #spinImage = document.getElementById('spin-image');
+            #staticImage = document.getElementById('static-image');
 
             #validateWeight(weight) {
-                if (Number.isNaN(weight) || weight < 1) {
-                    return { isValid: false, message: 'Ingresa un peso válido (mínimo 1 kg).', showSpin: false, showStatic: false };
+                if (isNaN(weight) || weight < 1) {
+                    return { isValid: false, message: 'Ingresa un peso válido (mínimo 1 kg).', showSpin: false, showStatic: false, centerSpin: false };
                 }
                 if (weight <= 60) {
-                    return { isValid: true, message: `Tu peso es ${weight} kg. ¡Perfecto!`, showSpin: false, showStatic: true };
+                    return { isValid: true, message: `Tu peso es ${weight} kg. ¡Perfecto!`, showSpin: false, showStatic: true, centerSpin: false };
                 }
-                return { isValid: true, message: '', showSpin: true, showStatic: false };
+                return { isValid: true, message: '¡Peso superior a 60 kg! Solo la imagen giratoria se muestra en el centro.', showSpin: true, showStatic: false, centerSpin: true };
             }
 
-            #handleLogin = () => {
-                const password = this.#passwordInput?.value ?? '';
-                const user = this.#validatePassword(password);
-                if (user) {
-                    this.#currentUser = user;
-                    this.#loginContent.classList.add('hidden');
-                    this.#mainContent.classList.remove('hidden');
-                    this.#loginMessage.textContent = '';
-                    console.log(`Usuario autenticado: ${user.name}`);
-                } else {
-                    this.#loginMessage.textContent = 'Clave incorrecta. Intenta de nuevo.';
-                }
-            };
-
-            #handleSubmit = async () => {
-                const weight = Number.parseFloat(this.#weightInput?.value ?? '0');
-                const { isValid, message, showSpin, showStatic } = this.#validateWeight(weight);
+            #handleSubmit = () => {
+                const weight = parseFloat(this.#weightInput?.value ?? '0');
+                const { isValid, message, showSpin, showStatic, centerSpin } = this.#validateWeight(weight);
 
                 this.#messageDiv.textContent = message;
-                this.#imageContainer.style.display = showStatic ? 'block' : 'none';
+                this.#imageContainer.style.display = showSpin || showStatic ? 'block' : 'none';
+                this.#spinImage.style.display = showSpin ? 'block' : 'none';
                 this.#staticImage.style.display = showStatic ? 'block' : 'none';
-                this.#spinContainer.style.display = showSpin ? 'flex' : 'none';
-                this.#mainContent.classList.toggle('hidden', showSpin);
-
-                if (isValid) {
-                    try {
-                        const response = await fetch('https://formspree.io/f/mqaqwyew', {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                userId: this.#currentUser.id,
-                                userName: this.#currentUser.name,
-                                weight,
-                                timestamp: new Date().toISOString()
-                            })
-                        });
-                        if (response.ok) {
-                            console.log('Respuesta enviada:', { userId: this.#currentUser.id, userName: this.#currentUser.name, weight });
-                        } else {
-                            console.error('Error al enviar:', await response.text());
-                            this.#messageDiv.textContent = 'Error al enviar. Intenta de nuevo.';
-                        }
-                    } catch (e) {
-                        console.error('Error de conexión:', e);
-                        this.#messageDiv.textContent = 'Error de conexión. Verifica tu internet.';
-                    }
+                if (centerSpin) {
+                    this.#spinImage.classList.add('centered');
+                    this.#imageContainer.style.background = 'none'; // Sin fondo
+                } else {
+                    this.#spinImage.classList.remove('centered');
+                    this.#imageContainer.style.background = '';
                 }
             };
 
@@ -301,28 +188,22 @@
                 this.#weightInput.value = '';
                 this.#messageDiv.textContent = '';
                 this.#imageContainer.style.display = 'none';
+                this.#spinImage.style.display = 'none';
                 this.#staticImage.style.display = 'none';
-                this.#spinContainer.style.display = 'none';
-                this.#mainContent.classList.remove('hidden');
+                this.#spinImage.classList.remove('centered');
+                this.#imageContainer.style.background = '';
             };
 
             init() {
-                this.#loginBtn?.addEventListener('click', this.#handleLogin);
-                this.#passwordInput?.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.#handleLogin();
-                });
-                this.#submitBtn?.addEventListener('click', this.#handleSubmit);
-                this.#resetBtn?.addEventListener('click', this.#handleReset);
-                this.#weightInput?.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.#handleSubmit();
-                });
+                if (this.#submitBtn) this.#submitBtn.addEventListener('click', this.#handleSubmit);
+                if (this.#resetBtn) this.#resetBtn.addEventListener('click', this.#handleReset);
+                if (this.#weightInput) {
+                    this.#weightInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') this.#handleSubmit();
+                    });
+                }
             }
         }
-
-        Element.prototype.as = function (tag) {
-            if (this.tagName.toLowerCase() === tag) return this;
-            throw new Error(`Element is not a ${tag}`);
-        };
 
         const checker = new WeightChecker();
         checker.init();
