@@ -1,0 +1,466 @@
+/* ==========================================================================
+   1. CONFIGURACIÓN GENERAL Y VARIABLES (Optimizado para Tecno Spark 10 Pro)
+   ========================================================================== */
+:root {
+    --bg-app: #f9f6f0;          /* Fondo crema claro estilo papel libro */
+    --surface: #ffffff;         /* Superficies de contenedores */
+    --primary: #2c3e50;         /* Azul Serif profundo para textos y bordes */
+    --accent-success: #27ae60;  /* Verde para combinaciones posibles */
+    --accent-error: #c0392b;    /* Rojo para combinaciones no posibles */
+    --text-main: #333333;       /* Texto principal legible */
+    --text-muted: #7f8c8d;      /* Texto secundario */
+    --font-title: 'Playfair Display', Georgia, serif;
+    --font-body: 'Lora', Palatino, serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent; /* Elimina parpadeo azul en móviles */
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Evita scrolls accidentales en la app global */
+    background-color: var(--bg-app);
+    font-family: var(--font-body);
+    color: var(--text-main);
+}
+
+/* Contenedor Principal: Ajuste estricto a la pantalla del móvil */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    padding: 10px;
+    gap: 8px;
+}
+
+/* ==========================================================================
+   2. ENCABEZADO (Header)
+   ========================================================================== */
+.app-header {
+    text-align: center;
+    padding: 2px 0;
+    border-bottom: 1px double var(--primary);
+}
+
+.app-header h1 {
+    font-family: var(--font-title);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   3. ÁREA DE VISUALIZACIÓN (Display Area)
+   ========================================================================== */
+.display-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0; /* Evita desbordamiento en distribuciones dinámicas flex */
+}
+
+/* Visor de Fórmula */
+.formula-viewer {
+    background: var(--surface);
+    border: 1px solid #e0dbd1;
+    border-radius: 8px;
+    padding: 6px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+}
+
+#mathjaxFormula {
+    font-size: 1.25rem;
+    text-align: center;
+    width: 100%;
+}
+
+/* Lienzo de Estructura de Lewis */
+.lewis-container {
+    flex: 2.2;
+    background: var(--surface);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    position: relative;
+    min-height: 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.lewis-canvas {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: auto; /* Permite paneo interno seguro si el compuesto es complejo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.placeholder-text {
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+}
+/* Panel de Retroalimentación Educativa */
+.feedback-panel {
+    flex: 1;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 8px 10px;
+    border-left: 4px solid var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 0;
+    overflow-y: auto; /* Desplazamiento interno si el texto explicativo es largo */
+}
+
+.status-indicator {
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-possible { color: var(--accent-success); }
+.status-impossible { color: var(--accent-error); }
+
+.explanation-text {
+    font-size: 0.85rem;
+    line-height: 1.3;
+    color: #444444;
+}
+
+/* ==========================================================================
+   4. TECLADO Y CONTROLES AJUSTADOS (Controls Area)
+   ========================================================================== */
+.controls-area {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Barra de acciones superior compacta */
+.action-bar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+/* Selectores Modulares (Subíndice y Carga Neta) */
+.quantity-selector, .charge-selector {
+    display: flex;
+    align-items: center;
+    background: #eae3d2;
+    padding: 3px 6px;
+    border-radius: 6px;
+    gap: 4px;
+}
+
+.quantity-label, .charge-label {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.quantity-value, .charge-value {
+    font-family: var(--font-title);
+    font-size: 1rem;
+    font-weight: 700;
+    min-width: 14px;
+    text-align: center;
+    color: var(--primary);
+}
+
+.quantity-btn, .charge-btn {
+    width: 24px;
+    height: 24px;
+    background: var(--surface);
+    border: 1px solid #b8b09f;
+    border-radius: 4px;
+    font-family: var(--font-title);
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.quantity-btn:active, .charge-btn:active {
+    background: var(--primary);
+    color: var(--surface);
+}
+
+/* Bloque de Botones Deshacer / Borrar */
+.utility-btns {
+    display: flex;
+    gap: 4px;
+}
+
+.action-btn {
+    padding: 6px 8px;
+    background: var(--surface);
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.action-btn:active {
+    background: #eae3d2;
+}
+
+.action-btn:disabled {
+    border-color: #d1c9bc;
+    color: var(--text-muted);
+    opacity: 0.4;
+}
+
+/* Botón de Acción Pedagógica Secundaria */
+.action-bar-bottom {
+    width: 100%;
+}
+
+.pedagogic-btn {
+    width: 100%;
+    background-color: var(--surface);
+    border: 1.5px solid var(--primary);
+    border-radius: 6px;
+    padding: 7px 0;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.pedagogic-btn:active {
+    background-color: #eae3d2;
+}
+
+.pedagogic-btn:disabled {
+    border-color: #d1c9bc;
+    color: var(--text-muted);
+    opacity: 0.4;
+    box-shadow: none;
+}
+
+/* Teclado Químico de Elementos Rediseñado (Más compacto) */
+.element-keyboard {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    background: #eae3d2;
+    padding: 6px;
+    border-radius: 10px;
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+/* Teclas de Elementos individuales */
+.key-element {
+    background: var(--surface);
+    border: 1px solid #b8b09f;
+    border-radius: 5px;
+    padding: 4px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.key-element:active {
+    background: var(--primary);
+    color: var(--surface);
+}
+
+.key-symbol {
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.key-electrons {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-top: -3px;
+}
+
+.key-element:active .key-electrons {
+    color: #bdc3c7;
+}
+
+/* ==========================================================================
+   5. ELEMENTOS GRÁFICOS DINÁMICOS (Para lewisRenderer.js)
+   ========================================================================== */
+.lewis-node {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-title);
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.lewis-dot {
+    position: absolute;
+    width: 4.5px;
+    height: 4.5px;
+    background-color: var(--primary);
+    border-radius: 50%;
+}
+
+.lewis-line {
+    position: absolute;
+    background-color: var(--primary);
+    transform-origin: top left;
+    height: 2px;
+}
+
+/* ==========================================================================
+   6. VENTANA MODAL SEMITRANSPARENTE (Desglose de Cargas Formales)
+   ========================================================================== */
+.formal-charge-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(44, 62, 80, 0.45); /* Capa oscura semitransparente */
+    backdrop-filter: blur(5px);               /* Filtro blur de desenfoque moderno */
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease-in-out;
+}
+
+/* Estado activo gatillado desde JS */
+.formal-charge-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.93);   /* Fondo blanco de alta transparencia */
+    border: 1.5px solid var(--primary);
+    border-radius: 14px;
+    width: 88vw;
+    max-width: 350px;
+    padding: 18px 14px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    font-family: var(--font-body);
+    animation: scaleUp 0.2s ease-out;
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent-error);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-title {
+    font-family: var(--font-title);
+    font-size: 1.15rem;
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.modal-subtitle {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 8px;
+}
+
+.modal-divider {
+    border: none;
+    border-top: 1px double #b8b09f;
+    margin-bottom: 10px;
+}
+
+/* Diseño de la Tabla de Cálculos */
+.formal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.formal-table th {
+    background: rgba(44, 62, 80, 0.08);
+    font-family: var(--font-title);
+    font-weight: bold;
+    color: var(--primary);
+    padding: 6px 4px;
+    border-bottom: 1.5px solid var(--primary);
+    text-align: center;
+}
+
+.formal-table td {
+    padding: 8px 4px;
+    text-align: center;
+    border-bottom: 1px solid #eae3d2;
+}
+
+.formal-table tr:last-child td {
+    border-bottom: none; /* Quita borde al renglón final */
+}
+
+/* Badges de Carga Estilizados */
+.badge-charge {
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.charge-zero {
+    background: #e8f8f5;
+    color: #27ae60;
+}
+
+.charge-active {
+    background: #fdf2f2;
+    color: #c0392b;
+}

@@ -2,211 +2,118 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peso Interactivo Mejorado</title>
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            overflow-y: auto;
-        }
-
-        h1 {
-            font-size: 2.8rem;
-            margin-bottom: 25px;
-            text-shadow: 0 0 12px #0ff, 0 0 20px #0ff;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 10px #0ff, 0 0 15px #0ff; }
-            to { text-shadow: 0 0 15px #0ff, 0 0 25px #0ff; }
-        }
-
-        .input-container {
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        input[type="number"] {
-            padding: 12px;
-            font-size: 1.3rem;
-            border: none;
-            border-radius: 8px;
-            background-color: #1a1a1a;
-            color: #fff;
-            width: 120px;
-            text-align: center;
-            box-shadow: 0 0 10px #0ff;
-            transition: box-shadow 0.3s, transform 0.3s;
-        }
-
-        input[type="number"]:focus {
-            outline: none;
-            box-shadow: 0 0 20px #0ff, 0 0 30px #0ff;
-            transform: scale(1.05);
-        }
-
-        .button-container {
-            display: flex;
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        button {
-            padding: 14px 28px;
-            font-size: 1.3rem;
-            border: none;
-            border-radius: 30px;
-            background: linear-gradient(45deg, #0ff, #f0f, #0ff);
-            background-size: 200%;
-            color: #000;
-            cursor: pointer;
-            transition: background-position 0.5s, transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 0 15px #0ff;
-        }
-
-        button:hover {
-            background-position: right;
-            transform: scale(1.12);
-            box-shadow: 0 0 25px #0ff;
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        #image-container {
-            display: none;
-            text-align: center;
-        }
-
-        #spin-image, #static-image {
-            width: 250px; /* Tamaño aumentado para mayor impacto */
-            height: 250px;
-            object-fit: contain;
-        }
-
-        #spin-image {
-            animation: spin 1.2s linear infinite; /* Rotación fluida */
-        }
-
-        #spin-image.centered {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        @keyframes spin {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        #message {
-            font-size: 1.3rem;
-            margin-top: 20px;
-            text-shadow: 0 0 8px #0ff;
-            max-width: 80%;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <h1>¿Cuál es tu peso?</h1>
-    <div class="input-container">
-        <input type="number" id="weight-input" min="1" max="100" placeholder="kg" />
-    </div>
-    <div class="button-container">
-        <button id="submit-btn">Enviar</button>
-        <button id="reset-btn">Reiniciar</button>
-    </div>
-    <div id="message"></div>
-    <div id="image-container">
-        <img id="spin-image" src="https://granmatton.com/cdn/shop/files/gordaa.png?v=1739505945&width=1445" alt="Imagen giratoria" style="display: none;" />
-        <img id="static-image" src="https://ak.picdn.net/contributors/498865/avatars/thumb.jpg?t=5822028" alt="Imagen estática" style="display: none;" />
-    </div>
-
-    <script type="module">
-        // Preload images to ensure they load correctly
-        const preloadImages = (urls) => {
-            for (const url of urls) {
-                const img = new Image();
-                img.src = url;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Creador Químico Pro</title>
+    
+    <!-- Fuentes Serif de Google Fonts -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    
+    <!-- Configuración e Inclusión de MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
             }
         };
-
-        preloadImages([
-            'https://granmatton.com/cdn/shop/files/gordaa.png?v=1739505945&width=1445',
-            'https://ak.picdn.net/contributors/498865/avatars/thumb.jpg?t=5822028'
-        ]);
-
-        class WeightChecker {
-            #weightInput = document.getElementById('weight-input');
-            #submitBtn = document.getElementById('submit-btn');
-            #resetBtn = document.getElementById('reset-btn');
-            #messageDiv = document.getElementById('message');
-            #imageContainer = document.getElementById('image-container');
-            #spinImage = document.getElementById('spin-image');
-            #staticImage = document.getElementById('static-image');
-
-            #validateWeight(weight) {
-                if (isNaN(weight) || weight < 1) {
-                    return { isValid: false, message: 'Ingresa un peso válido (mínimo 1 kg).', showSpin: false, showStatic: false, centerSpin: false };
-                }
-                if (weight <= 60) {
-                    return { isValid: true, message: `Tu peso es ${weight} kg. ¡Perfecto!`, showSpin: false, showStatic: true, centerSpin: false };
-                }
-                return { isValid: true, message: '¡Peso superior a 60 kg! Solo la imagen giratoria se muestra en el centro.', showSpin: true, showStatic: false, centerSpin: true };
-            }
-
-            #handleSubmit = () => {
-                const weight = parseFloat(this.#weightInput?.value ?? '0');
-                const { isValid, message, showSpin, showStatic, centerSpin } = this.#validateWeight(weight);
-
-                this.#messageDiv.textContent = message;
-                this.#imageContainer.style.display = showSpin || showStatic ? 'block' : 'none';
-                this.#spinImage.style.display = showSpin ? 'block' : 'none';
-                this.#staticImage.style.display = showStatic ? 'block' : 'none';
-                if (centerSpin) {
-                    this.#spinImage.classList.add('centered');
-                    this.#imageContainer.style.background = 'none'; // Sin fondo
-                } else {
-                    this.#spinImage.classList.remove('centered');
-                    this.#imageContainer.style.background = '';
-                }
-            };
-
-            #handleReset = () => {
-                this.#weightInput.value = '';
-                this.#messageDiv.textContent = '';
-                this.#imageContainer.style.display = 'none';
-                this.#spinImage.style.display = 'none';
-                this.#staticImage.style.display = 'none';
-                this.#spinImage.classList.remove('centered');
-                this.#imageContainer.style.background = '';
-            };
-
-            init() {
-                if (this.#submitBtn) this.#submitBtn.addEventListener('click', this.#handleSubmit);
-                if (this.#resetBtn) this.#resetBtn.addEventListener('click', this.#handleReset);
-                if (this.#weightInput) {
-                    this.#weightInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') this.#handleSubmit();
-                    });
-                }
-            }
-        }
-
-        const checker = new WeightChecker();
-        checker.init();
     </script>
+    <script id="MathJax-script" async src="https://jsdelivr.net"></script>
+    
+    <!-- Estilos de la Aplicación -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Encabezado / Título de la App -->
+        <header class="app-header">
+            <h1>Estructura de lewis(Gerardo's version)</h1>
+        </header>
+
+        <!-- Pantalla de Visualización Principal -->
+        <main class="display-area">
+            <!-- Área de Fórmula Química Actual -->
+            <section class="formula-viewer" id="formulaViewer">
+                <div id="mathjaxFormula">$$\text{Selecciona elementos para comenzar}$$</div>
+            </section>
+
+            <!-- Lienzo de la Estructura de Lewis -->
+            <section class="lewis-container" id="lewisContainer">
+                <div class="lewis-canvas" id="lewisCanvas">
+                    <p class="placeholder-text">La estructura de Lewis aparecerá aquí</p>
+                </div>
+            </section>
+
+            <!-- Panel de Retroalimentación Educativa (Profesor de Química) -->
+            <section class="feedback-panel" id="feedbackPanel">
+                <div class="status-indicator" id="statusIndicator">Esperando elementos...</div>
+                <div class="explanation-text" id="explanationText">
+                    Configura la carga global deseada, elige un subíndice y toca un elemento para iniciar la simulación exacta por cargas formales.
+                </div>
+            </section>
+        </main>
+
+        <!-- Sección de Control y Teclado Químico -->
+        <footer class="controls-area">
+            <!-- Selector de Subíndice, Carga Neta Explicita y Utilidades -->
+            <div class="action-bar-top">
+                <!-- Control de Cantidad -->
+                <div class="quantity-selector">
+                    <span class="quantity-label">Sub:</span>
+                    <button id="btnSubMinus" class="quantity-btn">-</button>
+                    <span id="currentSubscript" class="quantity-value">1</span>
+                    <button id="btnSubPlus" class="quantity-btn">+</button>
+                </div>
+
+                <!-- Selector de Carga Neta -->
+                <div class="charge-selector">
+                    <span class="charge-label">Carga:</span>
+                    <button id="btnChargeMinus" class="charge-btn">-</button>
+                    <span id="currentChargeValue" class="charge-value">0</span>
+                    <button id="btnChargePlus" class="charge-btn">+</button>
+                </div>
+
+                <!-- Botones Utilitarios Básicos -->
+                <div class="utility-btns">
+                    <button id="btnUndo" class="action-btn" disabled>Deshacer</button>
+                    <button id="btnClear" class="action-btn">Borrar</button>
+                </div>
+            </div>
+            
+            <!-- Fila de Acción Pedagógica Secundaria (Botón de Desglose Matemático) -->
+            <div class="action-bar-bottom">
+                <button id="btnShowFormalCharges" class="pedagogic-btn" disabled>👁️ Ver Matemáticas de Carga Formal</button>
+            </div>
+
+            <!-- Teclado Dinámico de Elementos Seleccionables -->
+            <div class="element-keyboard" id="elementKeyboard">
+                <!-- Se generará dinámicamente desde JS -->
+            </div>
+        </footer>
+    </div>
+
+    <!-- Contenedor Semitransparente Modal (Pop-up de Cargas Formales) -->
+    <div class="formal-charge-modal" id="formalChargeModal">
+        <div class="modal-content">
+            <button id="btnCloseModal" class="close-modal-btn">&times;</button>
+            <h2 class="modal-title">Desglose de Cargas Formales</h2>
+            <p class="modal-subtitle">Fórmula universal: $CF = V - N_{libres} - Enlaces$</p>
+            <hr class="modal-divider">
+            <div class="modal-body-table" id="modalTableBody">
+                <!-- Las filas con las restas matemáticas de cada átomo se inyectarán desde app.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de la Aplicación -->
+    <script src="periodicData.js"></script>
+    <script src="chemistryEngine.js"></script>
+    <script src="lewisRenderer.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
